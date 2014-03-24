@@ -2,7 +2,7 @@ Interface to the pocket API
 
 To run tests, a config.go file should be added containing the following values:
 
-- Appkey string
+- appkey string
 - apptoken string
 
 Authentication can be accomplished as in this example:
@@ -20,14 +20,14 @@ func pocketAuthHandler(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 
 	if code == "" {
-		url, err := pocket.GetRequestToken(pocket.Appkey, "http://localhost:8080/update-pocket")
+		url, err := pocket.GetRequestToken(appkey, "http://localhost:8080/update-pocket")
 
 		if err != nil {
 			fmt.Fprintf(w, "Error getting auth token: "+err.Error())
 		}
 		http.Redirect(w, r, url, http.StatusFound)
 	} else {
-		token, username, _ := pocket.GetAccessToken(pocket.Appkey, code)
+		token, username, _ := pocket.GetAccessToken(appkey, code)
 
 		fmt.Fprintf(w, "%s has been authorised with the token %s", username, token)
 	}

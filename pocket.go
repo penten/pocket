@@ -10,9 +10,16 @@ import (
 )
 
 type Article struct {
-	Item_id        string
-	Resolved_title string
-	Resolved_url   string
+	Id       string `json:"item_id"`
+	Title    string `json:"resolved_title"`
+	Url      string `json:"Resolved_url"`
+	Favorite int    `json:",string"`
+	Status   int    `json:",string"`
+	Images   map[string]Image
+}
+
+type Image struct {
+	src string
 }
 
 type ArticleList struct {
@@ -75,7 +82,7 @@ func GetAccessToken(key, code string) (string, string, error) {
 }
 
 func GetArticles(key, token string, options map[string]string) (map[string]Article, error) {
-	values := url.Values{"consumer_key": {key}, "access_token": {token}}
+	values := url.Values{"consumer_key": {key}, "access_token": {token}, "detailType": {"complete"}}
 
 	for k, v := range options {
 		values.Add(k, v)
@@ -93,12 +100,12 @@ func GetArticles(key, token string, options map[string]string) (map[string]Artic
 		return nil, errors.New("Response could not be read")
 	}
 
-	fmt.Print(string(body))
+	fmt.Printf(string(body))
 
 	list := ArticleList{}
 	err = json.Unmarshal(body, &list)
 	if err != nil {
-		return nil, errors.New("Error parsing body")
+		return nil, errors.New("Error parsing body: " + err.Error())
 	}
 
 	return list.List, nil
