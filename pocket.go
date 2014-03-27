@@ -16,10 +16,11 @@ type Article struct {
 	Favorite int    `json:",string"`
 	Status   int    `json:",string"`
 	Images   map[string]Image
+	Cover    string `json:"-"`
 }
 
 type Image struct {
-	src string
+	Src string
 }
 
 type ArticleList struct {
@@ -100,12 +101,24 @@ func GetArticles(key, token string, options map[string]string) (map[string]Artic
 		return nil, errors.New("Response could not be read")
 	}
 
-	fmt.Printf(string(body))
-
 	list := ArticleList{}
 	err = json.Unmarshal(body, &list)
 	if err != nil {
 		return nil, errors.New("Error parsing body: " + err.Error())
+	}
+
+	// get the first image's source and set it as the article's cover
+	for i, item := range list.List {
+		if len(item.Images) > 0 {
+			for _, image := range item.Images {
+				// range copies the slice/map, and we cannot cannot directly
+				// assign to a field of a struct inside a map, so we need to
+				// assign back into the map
+				item.Cover = image.Src
+				list.List[i] = item
+				break
+			}
+		}
 	}
 
 	return list.List, nil
